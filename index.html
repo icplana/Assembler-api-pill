@@ -14,16 +14,20 @@
         <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-            <h1 class="modal-title fs-5" id="exampleModalLabel">Posttitle</h1>
+            <input type="text" disabled class="modal-title fs-5 w-100" id="exampleModalLabel" value="PostTitle"/>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-            <p id="modalPostBody">Post body</p>
-            <p id="modalEmailUsername">Username - email</p>
+            <textarea id="modalPostBody" disabled class="d-block w-100 form-control mb-2">Post body</textarea>
+            <input type ="text" disabled class="d-block w-100 form-control" id="modalEmailUsername" value="Username - email" />
             </div>
             <button class="btn btn-info" id="btnShowComments">Show comments</button>
             <ul class="list-group" id="commentsList"></ul>
             <div class="modal-footer">
+
+            <button type="button" disabled class="btn btn-primary" id ="savePostBtn">Save</button>
+            <button type="button" class="btn btn-warning" id="editPostBtn">Edit</button>
+            <button type="button"  class="btn btn-danger" id ="deletePostBtn">Delete</button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 
             </div>

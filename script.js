@@ -1,7 +1,12 @@
 let postUl = document.getElementById('postList')
 
 let showModalBtns
+let deletePostBtns
+let editPostBtns
 
+let editPostBtn = document.getElementById('editPostBtn')
+let deletePostBtn = document.getElementById('deletePostBtn')
+let savePostBtn = document.getElementById('savePostBtn')
 let modalTitle = document.getElementById('exampleModalLabel')
 let modalBody = document.getElementById('modalPostBody')
 let modalEmailUsername = document.getElementById('modalEmailUsername')
@@ -53,6 +58,76 @@ let getCommentsData = async (id) => {
     }
 }
 
+let deletePost = async (e) => {
+    let id = e.target.getAttribute('post-id')
+    
+    try{
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts/' + id, {
+                        method: 'DELETE',
+                    })
+        if (response.ok){ 
+            e.target.parentElement.remove()
+            alert ('Post deleted!')
+        } else { 
+            alert('Something went wrong!')
+        }
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+let deletePostFromModal = async (e) => {
+    let id = e.target.getAttribute('post-id')
+    
+    try{
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts/' + id, {
+                        method: 'DELETE',
+                    })
+        if (response.ok){ 
+            
+            alert ('Post deleted!')
+        } else { 
+            alert('Something went wrong!')
+        }
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+let savePost = (e) => {
+    
+    try {
+        fetch('https://jsonplaceholder.typicode.com/posts/1', {
+            method: 'PUT',
+            body: JSON.stringify({
+                id: 1,
+                title: 'foo',
+                body: 'bar',
+                userId: 1,
+        }),
+        headers: {
+            'Content-type': 'application/json; charset=UTF-8',
+        },
+})
+  .then((response) => response.json())
+  .then((json) => console.log(json));
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+let makePostEditable = () => {
+    modalTitle.disabled = false
+    modalBody.disabled = false
+    modalEmailUsername.disabled = false
+}
+
+let makePostUneditable = () => {
+    modalTitle.disabled = true
+    modalBody.disabled = true
+    modalEmailUsername.disabled = true
+}
+
 let showPostsList = async () => {
     let postsArr = await getPostsData()
     
@@ -66,17 +141,41 @@ let showPostsList = async () => {
             <button type="button" class="btn btn-primary showModalBtn" data-bs-toggle="modal" data-bs-target="#exampleModal" post-id="${eachPost.id}" user-id="${eachPost.userId}">
             Open Post
             </button>
+            <button type="button" class="btn btn-secondary editPostBtn" data-bs-toggle="modal" data-bs-target="#exampleModal" post-id="${eachPost.id}" user-id="${eachPost.userId}">
+            Edit Post
+            </button>
+            <button type="button" class="btn btn-danger deletePostBtn" post-id="${eachPost.id}" user-id="${eachPost.userId}">
+            Delete Post
+            </button>
         `
         
         newDocumentFragment.appendChild(newLi)
     })
     
     postUl.appendChild(newDocumentFragment)
+
     showModalBtns = document.querySelectorAll('.showModalBtn')    
-    showModalBtns.forEach( eachBtn => eachBtn.addEventListener('click', updateModal ))
+    showModalBtns.forEach( eachBtn => eachBtn.addEventListener('click', (e) => {
+        makePostUneditable()
+        updateModal(e)
+        }
+    ))
+
+    deletePostBtns = document.querySelectorAll('.deletePostBtn')    
+    deletePostBtns.forEach( eachBtn => eachBtn.addEventListener('click', deletePost ))
+
+    editPostBtns = document.querySelectorAll('.editPostBtn')    
+    editPostBtns.forEach( eachBtn => eachBtn.addEventListener('click', (e) => {
+        makePostEditable()
+        updateModal(e)
+        }
+    ))
     
 }
-
+let cleanCommentsList = () => {
+    let commentsUl = document.getElementById('commentsList')
+    commentsUl.innerHTML = ''
+}
 let showCommentsList = (commentsData) => {
     let commentsUl = document.getElementById('commentsList')
     commentsUl.innerHTML = ''
@@ -97,14 +196,24 @@ let showCommentsList = (commentsData) => {
 
 }
 
+let cleanModal = () => {
+    modalTitle.value = 'Loading'
+    modalBody.textContent = ''
+    modalEmailUsername.value = ''
+    cleanCommentsList()
+}
+
 let updateModal = async (e) => {
+    cleanModal()
     let postId = e.target.getAttribute('post-id')
     let userId = e.target.getAttribute('user-id')
     let postInfo = await getPostData(postId)
     let userInfo = await getUserData(userId)
-    modalTitle.textContent = postInfo.title
+    modalTitle.value = postInfo.title
     modalBody.textContent = postInfo.body
-    modalEmailUsername.textContent = `Username: ${userInfo.username} - Emai: ${userInfo.email}`
+    modalEmailUsername.value = `Username: ${userInfo.username} - Emai: ${userInfo.email}`
+    savePostBtn.setAttribute('post-id', postId)
+    deletePostBtn.setAttribute('post-id', postId)
     btnShowComments.setAttribute('post-id', postId)
     btnShowComments.addEventListener('click', btnShowCommentsClick)
 }
@@ -118,10 +227,12 @@ let btnShowCommentsClick = async (e) => {
 
 showPostsList()
 
-
-// document.addEventListener('DOMContentLoaded', () => {
-   
+document.addEventListener('DOMContentLoaded', () => {
+    savePostBtn.addEventListener('click', savePost )
+    deletePostBtn.addEventListener('click', deletePostFromModal )
+    editPostBtn.addEventListener('click', makePostEditable)
     
-// })
+})
+
 
 
