@@ -94,23 +94,27 @@ let deletePostFromModal = async (e) => {
     }
 }
 
-let savePost = (e) => {
-    
+let savePost = async (e) => {
+    let id = e.target.getAttribute('post-id')
+    let userId = e.target.getAttribute('user-id')
+
     try {
-        fetch('https://jsonplaceholder.typicode.com/posts/1', {
+        
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts/' + id, {
             method: 'PUT',
             body: JSON.stringify({
-                id: 1,
-                title: 'foo',
-                body: 'bar',
-                userId: 1,
+                id: id,
+                title: modalTitle.value,
+                body: modalBody.value,
+                userId: userId,
         }),
         headers: {
             'Content-type': 'application/json; charset=UTF-8',
         },
 })
-  .then((response) => response.json())
-  .then((json) => console.log(json));
+  const json = await response.json()
+  console.log(json)
+  
     } catch (error) {
         console.error(error)
     }
@@ -119,17 +123,17 @@ let savePost = (e) => {
 let makePostEditable = () => {
     modalTitle.disabled = false
     modalBody.disabled = false
-    modalEmailUsername.disabled = false
+    savePostBtn.disabled = false
 }
 
 let makePostUneditable = () => {
     modalTitle.disabled = true
     modalBody.disabled = true
-    modalEmailUsername.disabled = true
+    savePostBtn.disabled = true
 }
 
-let showPostsList = async () => {
-    let postsArr = await getPostsData()
+let showPostsList = async (x = 5) => {
+    let postsArr = await getPostsData(x)
     
     let newDocumentFragment = document.createDocumentFragment()
     postsArr.forEach( eachPost => {
@@ -198,7 +202,7 @@ let showCommentsList = (commentsData) => {
 
 let cleanModal = () => {
     modalTitle.value = 'Loading'
-    modalBody.textContent = ''
+    modalBody.value = ''
     modalEmailUsername.value = ''
     cleanCommentsList()
 }
@@ -210,9 +214,10 @@ let updateModal = async (e) => {
     let postInfo = await getPostData(postId)
     let userInfo = await getUserData(userId)
     modalTitle.value = postInfo.title
-    modalBody.textContent = postInfo.body
+    modalBody.value = postInfo.body
     modalEmailUsername.value = `Username: ${userInfo.username} - Emai: ${userInfo.email}`
     savePostBtn.setAttribute('post-id', postId)
+    savePostBtn.setAttribute('user-id', userId)
     deletePostBtn.setAttribute('post-id', postId)
     btnShowComments.setAttribute('post-id', postId)
     btnShowComments.addEventListener('click', btnShowCommentsClick)
